@@ -1,6 +1,6 @@
 ## MJ Burgers (In Progress)
 
-Code along to create a Burger App using React.js
+MJ Burger App using React.js
 
 ## Technologies
 
