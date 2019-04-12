@@ -35,7 +35,9 @@ export default burger;
   // Reference alternative code
     let transformedIngredients = Object.keys(props.ingredients)
       .map(igKey => {
-        return [...Array(props.ingredients[igKey])].map((_, i) => {
+        return [...Array(props.ingredients[igKey])] // [,] At this point we have an array with elements
+          .map((_, i) => {
+          // Ingredient component for each
           return <BurgerIngredient key={igKey + i} type={igKey} />;
         });
       })
@@ -49,4 +51,10 @@ export default burger;
     if (transformedIngredients.length === 0) {
       transformedIngredients = <p>Please start adding ingredients!</p>;
     }
+
+  // Create an array of lenght n and spread the elements into an array
+  console.log(Array(3)); // [empty *3]
+  console.log(...Array(3)); // undefined undefined undefined
+  console.log([...Array(3)]); // [undefined, undefined, undefined] ie [0:undefined, 1:undefined, 2:undefined]
+
 */
