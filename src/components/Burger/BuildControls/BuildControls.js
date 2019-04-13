@@ -22,7 +22,12 @@ const buildControlsList = props => {
 };
 
 const buildControls = props => (
-  <div className={classes.BuildControls}>{buildControlsList(props)}</div>
+  <div className={classes.BuildControls}>
+    <p>
+      Current Price: <strong>{props.price.toFixed(2)}</strong>
+    </p>
+    {buildControlsList(props)}
+  </div>
 );
 
 export default buildControls;
