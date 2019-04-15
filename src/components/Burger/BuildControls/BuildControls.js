@@ -9,8 +9,9 @@ const controls = [
   { label: "Bacon", type: "bacon" }
 ];
 
-const buildControlsList = props => {
-  return controls.map(control => (
+const buildControls = props => {
+  // Ingredient controls
+  const buildControlsList = controls.map(control => (
     <BuildControl
       key={control.label}
       label={control.label}
@@ -19,15 +20,21 @@ const buildControlsList = props => {
       disabled={props.disabled[control.type]}
     />
   ));
+
+  return (
+    <div className={classes.BuildControls}>
+      <p>
+        Current Price: <strong>{props.price.toFixed(2)}</strong>
+      </p>
+      {buildControlsList}
+      <button
+        className={classes.OrderButton}
+        disabled={!props.purchasable}
+        onClick={props.ordered}
+      >
+        ORDER NOW
+      </button>
+    </div>
+  );
 };
-
-const buildControls = props => (
-  <div className={classes.BuildControls}>
-    <p>
-      Current Price: <strong>{props.price.toFixed(2)}</strong>
-    </p>
-    {buildControlsList(props)}
-  </div>
-);
-
 export default buildControls;
