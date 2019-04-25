@@ -16,12 +16,6 @@
   align-items: center; */
 }
 
-@media (min-width: 500px) {
-  .SideDrawer {
-    display: none;
-  }
-}
-
 .Open {
   transform: translateX(0);
 }
@@ -33,4 +27,11 @@
 .Logo {
   height: 11%;
   margin-bottom: 32px;
+}
+
+/* Desktop */
+@media (min-width: 500px) {
+  .SideDrawer {
+    display: none;
+  }
 }
