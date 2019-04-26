@@ -21,9 +21,16 @@
   height: 80%;
 }
 
-/* Mobile */
+/* Mobile size */
 @media (max-width: 499px) {
   .DesktopOnly {
     display: none;
   }
 }
+
+/* Desktop size */
+/* @media (min-width: 500px) {
+  .MobileOnly {
+    display: none;
+  }
+} */
