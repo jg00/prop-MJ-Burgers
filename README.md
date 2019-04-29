@@ -13,4 +13,5 @@ In addition the the site is responsive with sidebar navigation.
 ###### Frontend
 
 :coffee: **_React.js_**
+
 :coffee: **_CSS_**
