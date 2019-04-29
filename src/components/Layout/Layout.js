@@ -37,7 +37,7 @@ class Layout extends Component {
 
 export default Layout;
 
-/*
+/* Functional component version prior to changing to class component.  Kept here for reference only.
 const layout = props => (
   <Aux>
     <Toolbar />

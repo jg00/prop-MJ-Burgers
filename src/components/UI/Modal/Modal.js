@@ -1,8 +1,34 @@
-import React from "react";
+import React, { Component } from "react";
 import classes from "./Modal.module.css";
 import Aux from "../../../hoc/Aux";
 import Backdrop from "../Backdrop/Backdrop";
 
+class Modal extends Component {
+  // Update this component only when Order Now clicked
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.show !== this.props.show;
+  }
+
+  componentDidUpdate() {
+    console.log("[Modal] componentDidUpdate");
+  }
+
+  render() {
+    const showHide = this.props.show ? classes.Modal : classes.ModalHide;
+    return (
+      <Aux>
+        <Backdrop show={this.props.show} clicked={this.props.modalClosed} />
+        <div className={showHide}>{this.props.children}</div>
+      </Aux>
+    );
+  }
+}
+
+export default Modal;
+
+/* 
+  Functional component version only before adding lifecycle checks.  Kept for reference only.
+  
 const modal = props => {
   const showHide = props.show ? classes.Modal : classes.ModalHide;
   return (
@@ -14,6 +40,7 @@ const modal = props => {
 };
 
 export default modal;
+*/
 
 /*  Inline sytling reference only
 const modal = props => {
