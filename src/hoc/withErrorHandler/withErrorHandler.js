@@ -11,7 +11,7 @@ const withErrorHandler = (WrappedComponent, axios) => {
     constructor() {
       super();
       // HTTP request reset error
-      this.reqInterceptor = axios.interceptors.request.use(req => {
+      axios.interceptors.request.use(req => {
         this.setState({
           error: null
         });
@@ -19,18 +19,12 @@ const withErrorHandler = (WrappedComponent, axios) => {
       });
 
       // HTTP error response
-      this.resInterceptor = axios.interceptors.response.use(
+      axios.interceptors.response.use(
         res => res,
         error => {
           this.setState({ error: error });
         }
       );
-    }
-
-    componentWillUnmount() {
-      // Clean up old interceptors that use willErrorHandler HOC
-      axios.interceptors.request.eject(this.reqInterceptor);
-      axios.interceptors.request.eject(this.resInterceptor);
     }
 
     errorConfirmedHandler = () => {
