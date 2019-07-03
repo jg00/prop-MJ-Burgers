@@ -15,25 +15,34 @@ import ContactData from "./ContactData/ContactData";
 class Checkout extends Component {
   // Dummy data for now but we will need routing to pass ingredients
   state = {
-    ingredients: {
-      salad: 1,
-      meat: 1,
-      cheese: 1,
-      bacon: 1
-    }
+    ingredients: null,
+    price: 0 // should this be totalPrice or just price?
   };
 
-  componentDidMount() {
-    console.log("Checkout.js_componentDidMount()", this.props);
-    const query = new URLSearchParams(this.props.location.search);
+  // Prior to rendering we want to get the ingredients first to set this component's ingredient's state
+  // componentDidMount() {  // changed to getDrivedStateFromProps to initialize the ingredient's state
+  // static getDerivedStateFromProps(props, state) {
+  // may need to update to getDerivedState
+  componentWillMount() {
+    console.log("Checkout.js_componentWillMount");
+    const query = new URLSearchParams(this.props.location.search); // getDerivedStateFromProps is static therefore no instance (ie no 'this.')
+    // const query = new URLSearchParams(props.location.search);
     const ingredients = {};
+    let price = 0;
+
     for (let param of query.entries()) {
-      // ['salad', '1']
-      ingredients[param[0]] = +param[1];
+      // Exclude 'price' b/c this is not an ingredient.  This is a workaround until we use Redux.
+      if (param[0] === "price") {
+        price = param[1];
+      } else {
+        // ['salad', '1']
+        ingredients[param[0]] = +param[1];
+      }
     }
 
     this.setState({
-      ingredients: ingredients
+      ingredients: ingredients,
+      totalPrice: price // should this be totalPrice or just price?
     });
   }
 
@@ -56,7 +65,14 @@ class Checkout extends Component {
         />
         <Route
           path={this.props.match.path + "/contact-data"}
-          component={ContactData}
+          render={props => (
+            <ContactData
+              ingredients={this.state.ingredients}
+              price={this.state.totalPrice} // should this be totalPrice or just price?
+              {...props}
+            />
+          )}
+          // component={ContactData}
         />
       </div>
     );
