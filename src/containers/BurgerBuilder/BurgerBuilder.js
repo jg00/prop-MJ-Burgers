@@ -26,6 +26,7 @@ class BurgerBuilder extends Component {
   };
 
   componentDidMount() {
+    console.log("Burgerbuilder test", this.props);
     axios
       .get("https://mj-burgers.firebaseio.com/ingredients.json")
       .then(response => {
@@ -51,6 +52,7 @@ class BurgerBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
+    /* Original before routing added commented.  Instead of directly adding to Firebase, we want to go to the Checkout page first.
     // For spinner
     this.setState({
       loading: true
@@ -87,6 +89,24 @@ class BurgerBuilder extends Component {
           purchasing: false
         });
       });
+    */
+
+    // Build query string of ingredients and values
+    const queryParams = [];
+    for (let i in this.state.ingredients) {
+      queryParams.push(
+        encodeURIComponent(i) +
+          "=" +
+          encodeURIComponent(this.state.ingredients[i])
+      );
+    }
+    const queryString = queryParams.join("&");
+
+    // this.props.history.push("/checkout");
+    this.props.history.push({
+      pathname: "/checkout",
+      search: "?" + queryString
+    });
   };
 
   updatePurchaseState = ingredients => {
