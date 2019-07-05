@@ -102,7 +102,8 @@ class ContactData extends Component {
   inputChangedHander = (event, inputIdentifier) => {
     console.log(event.target.value);
 
-    /* Important - this does not create a deep clone of nested objects but instead get a pointer 
+    /* (Make a clone of {} and update properties within the cloned {})
+       Important - this does not create a deep clone of nested objects but instead get a pointer 
        to those objects only.  Any changes directly then will still mutate the original state.
     */
     const updatedOrderForm = { ...this.state.orderForm }; // This distributes properties of the order form ie 'name', 'email', etc.  Also see important note above.
