@@ -95,35 +95,47 @@ class ContactData extends Component {
       });
   };
 
+  /* 
+    - Do not update original state directly like this.state.orderForm.value
+    - Update immutably by making copy of the state (note watch out for deep clones )
+  */
+  inputChangedHander = (event, inputIdentifier) => {
+    console.log(event.target.value);
+
+    /* Important - this does not create a deep clone of nested objects but instead get a pointer 
+       to those objects only.  Any changes directly then will still mutate the original state.
+    */
+    const updatedOrderForm = { ...this.state.orderForm }; // This distributes properties of the order form ie 'name', 'email', etc.  Also see important note above.
+    const updatedFormElement = { ...updatedOrderForm[inputIdentifier] }; // Clone objects assocaiated to the properties like 'name', email', etc.
+    updatedFormElement.value = event.target.value;
+    updatedOrderForm[inputIdentifier] = updatedFormElement;
+
+    this.setState({ orderForm: updatedOrderForm });
+  };
+
   render() {
+    const formElementsArray = [];
+    for (let key in this.state.orderForm) {
+      formElementsArray.push({
+        id: key,
+        config: this.state.orderForm[key]
+      });
+    }
+
     let form = (
       <form>
         {/* <Input elementType="..." elementConfig="..." value="..." /> */}
-        <Input elementType="..." elementConfig="..." value="..." />
-        <Input
-          inputtype="input"
-          type="text"
-          name="name"
-          placeholder="Your Name"
-        />
-        <Input
-          inputtype="input"
-          type="email"
-          name="email"
-          placeholder="Your Mail"
-        />
-        <Input
-          inputtype="input"
-          type="text"
-          name="street"
-          placeholder="Street"
-        />
-        <Input
-          inputtype="input"
-          type="text"
-          name="postal"
-          placeholder="Postal Code"
-        />
+
+        {formElementsArray.map(formElement => (
+          <Input
+            key={formElement.id}
+            elementType={formElement.config.elementType}
+            elementConfig={formElement.config.elementConfig}
+            value={formElement.config.value}
+            changed={event => this.inputChangedHander(event, formElement.id)}
+          />
+        ))}
+
         <Button btnType="Success" clicked={this.orderHandler}>
           ORDER
         </Button>
@@ -144,3 +156,15 @@ class ContactData extends Component {
 }
 
 export default ContactData;
+
+/* 
+// Previous version reference only
+  <Input
+    inputtype="input"
+    type="text"
+    name="name"
+    placeholder="Your Name"
+  />
+
+  ...
+*/
