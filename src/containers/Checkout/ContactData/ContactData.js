@@ -16,7 +16,12 @@ class ContactData extends Component {
           type: "text",
           placeholder: "Your Name"
         },
-        value: ""
+        value: "",
+        validation: {
+          required: true
+        },
+        valid: false,
+        touched: false
       },
       street: {
         elementType: "input",
@@ -24,7 +29,12 @@ class ContactData extends Component {
           type: "text",
           placeholder: "Street"
         },
-        value: ""
+        value: "",
+        validation: {
+          required: true
+        },
+        valid: false,
+        touched: false
       },
       zipCode: {
         elementType: "input",
@@ -32,7 +42,14 @@ class ContactData extends Component {
           type: "text",
           placeholder: "ZIP Code"
         },
-        value: ""
+        value: "",
+        validation: {
+          required: true,
+          minLength: 5,
+          maxLength: 5
+        },
+        valid: false,
+        touched: false
       },
       country: {
         elementType: "input",
@@ -40,7 +57,12 @@ class ContactData extends Component {
           type: "text",
           placeholder: "Country"
         },
-        value: ""
+        value: "",
+        validation: {
+          required: true
+        },
+        valid: false,
+        touched: false
       },
       email: {
         elementType: "input",
@@ -48,7 +70,12 @@ class ContactData extends Component {
           type: "email",
           placeholder: "Your E-Mail"
         },
-        value: ""
+        value: "",
+        validation: {
+          required: true
+        },
+        valid: false,
+        touched: false
       },
       deliveryMethod: {
         elementType: "select",
@@ -58,9 +85,12 @@ class ContactData extends Component {
             { value: "cheapest", displayValue: "Cheapest" }
           ]
         },
-        value: ""
+        value: "fastest", // Should not be empty string b/c if never updated, the actual value will always be empty string eventhough it shows in the UI.
+        validation: {}, // Added because accessing validation.required not available will cause error.  However by adding empty object {}, we get undefined for validation.required.  This works.
+        valid: true
       }
     },
+    formIsValid: false,
     loading: false
   };
 
@@ -73,10 +103,19 @@ class ContactData extends Component {
       loading: true
     });
 
+    // { name:nameValue, street:streetVaue}
+    const formData = {};
+    for (let formElementIdentifier in this.state.orderForm) {
+      formData[formElementIdentifier] = this.state.orderForm[
+        formElementIdentifier
+      ].value;
+    }
+
     // alert("You clicked continue!");
     const order = {
       ingredients: this.props.ingredients,
-      price: this.props.price
+      price: this.props.price,
+      orderData: formData
     };
 
     // path requires .json for Firebase only
@@ -95,6 +134,29 @@ class ContactData extends Component {
       });
   };
 
+  checkValidity(value, rules) {
+    let isValid = true;
+
+    // One way to handle dropdown that does not have validation rules defined.
+    if (!rules) {
+      return true;
+    }
+
+    if (rules.required) {
+      isValid = value.trim() !== "" && isValid;
+    }
+
+    if (rules.minLength) {
+      isValid = value.length >= rules.minLength && isValid;
+    }
+
+    if (rules.maxLength) {
+      isValid = value.length <= rules.maxLength && isValid;
+    }
+
+    return isValid;
+  }
+
   /* 
     - Do not update original state directly like this.state.orderForm.value
     - Update immutably by making copy of the state (note watch out for deep clones )
@@ -107,11 +169,26 @@ class ContactData extends Component {
        to those objects only.  Any changes directly then will still mutate the original state.
     */
     const updatedOrderForm = { ...this.state.orderForm }; // This distributes properties of the order form ie 'name', 'email', etc.  Also see important note above.
+
     const updatedFormElement = { ...updatedOrderForm[inputIdentifier] }; // Clone objects assocaiated to the properties like 'name', email', etc.
     updatedFormElement.value = event.target.value;
-    updatedOrderForm[inputIdentifier] = updatedFormElement;
+    updatedFormElement.valid = this.checkValidity(
+      updatedFormElement.value,
+      updatedFormElement.validation
+    );
+    updatedFormElement.touched = true; // Behavior to check validity only if element was touched.  Behavior to no have all red textboxes to begin with.
 
-    this.setState({ orderForm: updatedOrderForm });
+    updatedOrderForm[inputIdentifier] = updatedFormElement;
+    // console.log(updatedFormElement);
+
+    // Check all input is valid to enable button
+    let formIsValid = true;
+    for (let inputIdentifier in updatedOrderForm) {
+      // console.log(inputIdentifiers)
+      formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+    }
+
+    this.setState({ orderForm: updatedOrderForm, formIsValid: formIsValid });
   };
 
   render() {
@@ -124,7 +201,7 @@ class ContactData extends Component {
     }
 
     let form = (
-      <form>
+      <form onSubmit={this.orderHandler}>
         {/* <Input elementType="..." elementConfig="..." value="..." /> */}
 
         {formElementsArray.map(formElement => (
@@ -133,11 +210,15 @@ class ContactData extends Component {
             elementType={formElement.config.elementType}
             elementConfig={formElement.config.elementConfig}
             value={formElement.config.value}
+            invalid={!formElement.config.valid} // input element values need to be checked for valid data
+            shouldValidate={formElement.config.validation} // not all elements need to be validated like select option
+            touched={formElement.config.touched} // add this Invalid class only if the element has been touched.  This is so we do not start with all red input elements.
             changed={event => this.inputChangedHander(event, formElement.id)}
           />
         ))}
 
-        <Button btnType="Success" clicked={this.orderHandler}>
+        {/* <Button btnType="Success" clicked={this.orderHandler}> Handle with form submit*/}
+        <Button btnType="Success" disabled={!this.state.formIsValid}>
           ORDER
         </Button>
       </form>
