@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+
 import Aux from "../../hoc/Aux/Aux";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
@@ -8,18 +10,20 @@ import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 import axios from "../../axios-orders";
 
-const INGREDIENT_PRICES = {
-  salad: 0.5,
-  cheese: 0.4,
-  meat: 1.3,
-  bacon: 0.7
-};
+import * as actionTypes from "../../store/actions";
+
+// const INGREDIENT_PRICES = {
+//   salad: 0.5,
+//   cheese: 0.4,
+//   meat: 1.3,
+//   bacon: 0.7
+// };
 
 class BurgerBuilder extends Component {
   state = {
-    ingredients: null,
-    totalPrice: 4, // base price of burger
-    purchasable: false,
+    // ingredients: null,  No longer using local state
+    // totalPrice: 4, // base price of burger
+    // purchasable: false,
     purchasing: false,
     loading: false,
     error: false
@@ -27,16 +31,18 @@ class BurgerBuilder extends Component {
 
   componentDidMount() {
     console.log("Burgerbuilder test", this.props);
-    axios
-      .get("https://mj-burgers.firebaseio.com/ingredients.json")
-      .then(response => {
-        this.setState({
-          ingredients: response.data
-        });
-      })
-      .catch(error => {
-        this.setState({ error: true });
-      });
+    // Comment out for now
+    // axios
+    //   .get("https://mj-burgers.firebaseio.com/ingredients.json")
+    //   .then(response => {
+    //     console.log("BurgerBilder_componentDidMount", response.data);
+    //     this.setState({
+    //       ingredients: response.data
+    //     });
+    //   })
+    //   .catch(error => {
+    //     this.setState({ error: true });
+    //   });
   }
 
   purchaseHandler = () => {
@@ -51,46 +57,14 @@ class BurgerBuilder extends Component {
     });
   };
 
+  // Now with Redux just redirect to /checkout but now ingredients is available through Redux store.
   purchaseContinueHandler = () => {
-    /* Original before routing added commented.  Instead of directly adding to Firebase, we want to go to the Checkout page first.
-    // For spinner
-    this.setState({
-      loading: true
-    });
+    this.props.history.push("/checkout");
+  };
 
-    // alert("You clicked continue!");
-    const order = {
-      ingredients: this.state.ingredients,
-      price: this.state.totalPrice,
-      customer: {
-        name: "Nelson Mandela",
-        address: {
-          street: "Mandela Street",
-          zipCode: "",
-          country: "Germany"
-        },
-        email: "test@test.com"
-      },
-      deliveryMethod: "fastest"
-    };
-
-    // path requires .json for Firebase only
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        this.setState({
-          loading: false,
-          purchasing: false
-        });
-      })
-      .catch(error => {
-        this.setState({
-          loading: false,
-          purchasing: false
-        });
-      });
-    */
-
+  /*
+  // With Redux we don't need to pass data through queryParams any more.  Commented for refrence only.
+  purchaseContinueHandler = () => {
     // Build query string of ingredients and values
     const queryParams = [];
     for (let i in this.state.ingredients) {
@@ -109,6 +83,7 @@ class BurgerBuilder extends Component {
       search: "?" + queryString
     });
   };
+  */
 
   updatePurchaseState = ingredients => {
     const sum = Object.keys(ingredients)
@@ -119,11 +94,11 @@ class BurgerBuilder extends Component {
         return sum + el;
       }, 0);
 
-    this.setState({
-      purchasable: sum > 0
-    });
+    // this.setState({purchasable: sum > 0}); // Order button state no longer used to update if purchasable that enables/disables the order button.
+    return sum > 0; // returns true if greater
   };
 
+  /*
   addIngredientHandler = type => {
     const oldCount = this.state.ingredients[type];
     const updatedCount = oldCount + 1;
@@ -141,7 +116,9 @@ class BurgerBuilder extends Component {
 
     this.updatePurchaseState(updatedIngredients);
   };
+  */
 
+  /*
   removeIngredientHandler = type => {
     const oldCount = this.state.ingredients[type];
     if (oldCount <= 0) {
@@ -162,11 +139,12 @@ class BurgerBuilder extends Component {
 
     this.updatePurchaseState(updatedIngredients);
   };
+  */
 
   render() {
     // Identify buttons that should be disabled
     const disabledInfo = {
-      ...this.state.ingredients
+      ...this.props.ings
     };
 
     for (let key in disabledInfo) {
@@ -183,25 +161,26 @@ class BurgerBuilder extends Component {
     );
 
     // Display only when ingredients set on ComponentDidMount()
-    if (this.state.ingredients) {
+    if (this.props.ings) {
       burger = (
         <Aux>
-          <Burger ingredients={this.state.ingredients} />
+          <Burger ingredients={this.props.ings} />
           <BuildControls
-            ingredientAdded={this.addIngredientHandler}
-            ingredientRemoved={this.removeIngredientHandler}
+            ingredientAdded={this.props.onIngredientAdded}
+            ingredientRemoved={this.props.onIngredientRemoved}
             disabled={disabledInfo}
-            purchasable={this.state.purchasable}
+            // purchasable={this.state.purchasable}
+            purchasable={this.updatePurchaseState(this.props.ings)}
             ordered={this.purchaseHandler}
-            price={this.state.totalPrice}
+            price={this.props.price}
           />
         </Aux>
       );
 
       orderSummary = (
         <OrderSummary
-          ingredients={this.state.ingredients}
-          price={this.state.totalPrice}
+          ingredients={this.props.ings}
+          price={this.props.price}
           purchaseCanceled={this.purchaseCancelHandler}
           purchaseContinued={this.purchaseContinueHandler}
         />
@@ -227,4 +206,32 @@ class BurgerBuilder extends Component {
   }
 }
 
-export default withErrorHandler(BurgerBuilder, axios);
+const mapStateToProps = state => {
+  return {
+    ings: state.ingredients,
+    price: state.totalPrice
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onIngredientAdded: ingName =>
+      dispatch({ type: actionTypes.ADD_INGREDIENT, ingredientName: ingName }),
+    onIngredientRemoved: ingName =>
+      dispatch({ type: actionTypes.REMOVE_INGREDIENT, ingredientName: ingName })
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withErrorHandler(BurgerBuilder, axios));
+
+/*  
+Important that in the HOC withErrorHandler we need to distribute the props of the component like below.  
+*Key - In the end what connect(map constants) will do is it will just set some props on the component
+it is wrapping.  So as long as you pass {...this.props} on in your own HOCs, this should work fine because
+any props set by other HOCs which might wrap this one, will still be passed on just fine.
+
+  <WrappedComponent {...this.props} />
+*/
