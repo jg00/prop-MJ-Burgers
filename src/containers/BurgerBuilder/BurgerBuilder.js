@@ -32,18 +32,18 @@ class BurgerBuilder extends Component {
 
   componentDidMount() {
     console.log("Burgerbuilder test", this.props);
-    // Comment out for now
-    // axios
-    //   .get("https://mj-burgers.firebaseio.com/ingredients.json")
-    //   .then(response => {
-    //     console.log("BurgerBilder_componentDidMount", response.data);
-    //     this.setState({
-    //       ingredients: response.data
-    //     });
-    //   })
-    //   .catch(error => {
-    //     this.setState({ error: true });
-    //   });
+
+    axios
+      .get("https://mj-burgers.firebaseio.com/ingredients.json")
+      .then(response => {
+        console.log("BurgerBilder_componentDidMount", response.data);
+        this.setState({
+          ingredients: response.data
+        });
+      })
+      .catch(error => {
+        this.setState({ error: true });
+      });
   }
 
   purchaseHandler = () => {
