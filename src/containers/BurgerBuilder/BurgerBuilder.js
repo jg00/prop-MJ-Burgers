@@ -25,25 +25,15 @@ class BurgerBuilder extends Component {
     // ingredients: null,  No longer using local state
     // totalPrice: 4, // base price of burger
     // purchasable: false,
-    purchasing: false,
-    loading: false,
-    error: false
+    purchasing: false
+    // loading: false,
+    // error: false
   };
 
   componentDidMount() {
     console.log("Burgerbuilder test", this.props);
 
-    axios
-      .get("https://mj-burgers.firebaseio.com/ingredients.json")
-      .then(response => {
-        console.log("BurgerBilder_componentDidMount", response.data);
-        this.setState({
-          ingredients: response.data
-        });
-      })
-      .catch(error => {
-        this.setState({ error: true });
-      });
+    this.props.onInitIngredients();
   }
 
   purchaseHandler = () => {
@@ -155,7 +145,7 @@ class BurgerBuilder extends Component {
     let orderSummary = null;
 
     // Ingredients retrieved from DB required.
-    let burger = this.state.error ? (
+    let burger = this.props.error ? (
       <p>Ingredients cannot be loaded!</p>
     ) : (
       <Spinner />
@@ -188,10 +178,11 @@ class BurgerBuilder extends Component {
       );
     }
 
+    // Commented - no longer needed because 'loading' state property is no longer handled here.
     // Check to override overSummary when needed
-    if (this.state.loading) {
-      orderSummary = <Spinner />;
-    }
+    // if (this.state.loading) {
+    //   orderSummary = <Spinner />;
+    // }
 
     return (
       <Aux>
@@ -210,7 +201,8 @@ class BurgerBuilder extends Component {
 const mapStateToProps = state => {
   return {
     ings: state.ingredients,
-    price: state.totalPrice
+    price: state.totalPrice,
+    error: state.error
   };
 };
 
@@ -219,7 +211,8 @@ const mapDispatchToProps = dispatch => {
     onIngredientAdded: ingName =>
       dispatch(burgerBuilderActions.addIngredient(ingName)),
     onIngredientRemoved: ingName =>
-      dispatch(burgerBuilderActions.removeIngredient(ingName))
+      dispatch(burgerBuilderActions.removeIngredient(ingName)),
+    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
 
     /*
       onIngredientAdded: ingName =>
