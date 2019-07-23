@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 
 import CheckoutSummary from "../../components/Order/CheckoutSummary/CheckoutSummary";
 import ContactData from "./ContactData/ContactData";
-import * as actions from "../../store/actions/index";
 
 /*
     Plan Presentation and Behavior of this component
@@ -53,7 +52,8 @@ class Checkout extends Component {
 */
 
   componentWillMount() {
-    this.props.onInitPurchase();
+    console.log("[Checkout componentWillMount]");
+    // this.props.onInitPurchase();
   }
 
   checkoutCancelledHandler = () => {
@@ -123,13 +123,13 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onInitPurchase: () => dispatch(actions.purchaseInit())
-  };
-};
+// const mapDispatchToProps = dispatch => {
+//   return {
+//     onInitPurchase: () => dispatch(actions.purchaseInit())
+//   };
+// };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(Checkout);

@@ -24,14 +24,14 @@ export const purchaseBurgerStart = () => {
 
 export const purchaseBurger = orderData => {
   return dispatch => {
-    dispatch(purchaseBurgerStart());
+    dispatch(purchaseBurgerStart()); // Sets state loading to true
 
     // path requires .json for Firebase only
     axios
       .post("/orders.json", orderData)
       .then(response => {
         console.log(response.data);
-        dispatch(purchaseBurgerSuccess(response.data.name, orderData));
+        dispatch(purchaseBurgerSuccess(response.data.name, orderData)); // Sets state purhases to true.
 
         /*
             this.setState({

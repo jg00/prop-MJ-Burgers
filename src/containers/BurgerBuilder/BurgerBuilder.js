@@ -11,7 +11,7 @@ import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 import axios from "../../axios-orders";
 
 // import * as actionTypes from "../../store/actions";
-import * as burgerBuilderActions from "../../store/actions/index";
+import * as actions from "../../store/actions/index";
 
 // const INGREDIENT_PRICES = {
 //   salad: 0.5,
@@ -32,7 +32,6 @@ class BurgerBuilder extends Component {
 
   componentDidMount() {
     console.log("Burgerbuilder test", this.props);
-
     this.props.onInitIngredients();
   }
 
@@ -50,6 +49,7 @@ class BurgerBuilder extends Component {
 
   // Now with Redux just redirect to /checkout but now ingredients is available through Redux store.
   purchaseContinueHandler = () => {
+    this.props.onInitPurchase(); // First step at reducers/order.js, sets state property purchases: 'false'.
     this.props.history.push("/checkout");
   };
 
@@ -208,11 +208,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onIngredientAdded: ingName =>
-      dispatch(burgerBuilderActions.addIngredient(ingName)),
-    onIngredientRemoved: ingName =>
-      dispatch(burgerBuilderActions.removeIngredient(ingName)),
-    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
+    onIngredientAdded: ingName => dispatch(actions.addIngredient(ingName)),
+    onIngredientRemoved: ingName => dispatch(actions.removeIngredient(ingName)),
+    onInitIngredients: () => dispatch(actions.initIngredients()),
+    onInitPurchase: () => dispatch(actions.purchaseInit())
 
     /*
       onIngredientAdded: ingName =>
