@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Route } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
 import CheckoutSummary from "../../components/Order/CheckoutSummary/CheckoutSummary";
 import ContactData from "./ContactData/ContactData";
+import * as actions from "../../store/actions/index";
 
 /*
     Plan Presentation and Behavior of this component
@@ -51,6 +52,10 @@ class Checkout extends Component {
   }
 */
 
+  componentWillMount() {
+    this.props.onInitPurchase();
+  }
+
   checkoutCancelledHandler = () => {
     this.props.history.goBack();
   };
@@ -61,36 +66,70 @@ class Checkout extends Component {
   };
 
   render() {
-    return (
-      <div>
-        <CheckoutSummary
-          ingredients={this.props.ings}
-          checkoutCancelled={this.checkoutCancelledHandler}
-          checkoutContinued={this.checkoutContinuedHandler}
-        />
-        <Route
-          path={this.props.match.path + "/contact-data"}
-          component={ContactData}
+    let summary = <Redirect to="/" />;
 
-          /* With Redux no longer needed this trick to send ingredients
-          render={props => (
-            <ContactData
-              ingredients={this.props.ings}
-              price={this.props.price} // should this be totalPrice or just price?
-              {...props}
-            />
-          )}
-          */
-        />
-      </div>
-    );
+    if (this.props.ings) {
+      const purchasedRedirect = this.props.purchased ? (
+        <Redirect to="/" />
+      ) : null;
+
+      summary = (
+        <div>
+          {purchasedRedirect}
+          <CheckoutSummary
+            ingredients={this.props.ings}
+            checkoutCancelled={this.checkoutCancelledHandler}
+            checkoutContinued={this.checkoutContinuedHandler}
+          />
+          <Route
+            path={this.props.match.path + "/contact-data"}
+            component={ContactData}
+          />
+        </div>
+      );
+    }
+
+    return summary;
+
+    // return <div>{summary}</div>;
+
+    // return (
+    //   <div>
+    //     {summary}
+
+    //     <Route
+    //       path={this.props.match.path + "/contact-data"}
+    //       component={ContactData}
+
+    //       /* With Redux no longer needed this trick to send ingredients
+    //       render={props => (
+    //         <ContactData
+    //           ingredients={this.props.ings}
+    //           price={this.props.price} // should this be totalPrice or just price?
+    //           {...props}
+    //         />
+    //       )}
+    //       */
+    //     />
+    //   </div>
+    // );
   }
 }
 
 const mapStateToProps = state => {
   return {
-    ings: state.ingredients
+    ings: state.burgerBuilder.ingredients,
+    purchased: state.order.purchased
   };
 };
 
-export default connect(mapStateToProps)(Checkout);
+const mapDispatchToProps = dispatch => {
+  return {
+    onInitPurchase: () => dispatch(actions.purchaseInit())
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Checkout);

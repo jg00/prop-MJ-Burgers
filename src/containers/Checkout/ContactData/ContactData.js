@@ -7,6 +7,8 @@ import Spinner from "../../../components/UI/Spinner/Spinner";
 import axios from "../../../axios-orders";
 
 import Input from "../../../components/UI/Input/Input";
+import withErrorHandler from "../../../hoc/withErrorHandler/withErrorHandler";
+import * as actions from "../../../store/actions/index";
 
 class ContactData extends Component {
   state = {
@@ -91,18 +93,20 @@ class ContactData extends Component {
         valid: true
       }
     },
-    formIsValid: false,
-    loading: false
+    formIsValid: false
+    // loading: false  // Now handled through redux
   };
 
   orderHandler = event => {
     event.preventDefault(); // Default behavior inside the form is to post the data.  Added preventDefault() to prevent reloading.
     // console.log("ContactData.js_orderHandler", this.props);
 
+    /* No handled through redux
     // For spinner
     this.setState({
       loading: true
     });
+    */
 
     // { name:nameValue, street:streetVaue}
     const formData = {};
@@ -119,6 +123,9 @@ class ContactData extends Component {
       orderData: formData
     };
 
+    this.props.onOrderBurger(order);
+
+    /*
     // path requires .json for Firebase only
     axios
       .post("/orders.json", order)
@@ -133,6 +140,7 @@ class ContactData extends Component {
           loading: false
         });
       });
+      */
   };
 
   checkValidity(value, rules) {
@@ -225,7 +233,7 @@ class ContactData extends Component {
       </form>
     );
 
-    if (this.state.loading) {
+    if (this.props.loading) {
       form = <Spinner />;
     }
 
@@ -240,12 +248,22 @@ class ContactData extends Component {
 
 const mapStateToProps = state => {
   return {
-    ings: state.ingredients,
-    price: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    loading: state.order.loading
   };
 };
 
-export default connect(mapStateToProps)(ContactData);
+const mapDispatchToProps = dispatch => {
+  return {
+    onOrderBurger: orderData => dispatch(actions.purchaseBurger(orderData))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withErrorHandler(ContactData, axios));
 
 /* 
 // Previous version reference only
