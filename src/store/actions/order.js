@@ -52,8 +52,52 @@ export const purchaseBurger = orderData => {
   };
 };
 
+// Initialize purchased to false (ContactData.js > Order button)
 export const purchaseInit = () => {
   return {
     type: actionTypes.PURCHASE_INIT
+  };
+};
+
+export const fetchOrdersSuccess = orders => {
+  return {
+    type: actionTypes.FETCH_ORDERS_SUCCESS,
+    orders: orders
+  };
+};
+
+export const fetchOrdersFail = error => {
+  return {
+    type: actionTypes.FETCH_ORDERS_FAIL,
+    error: error
+  };
+};
+
+export const fetchOrdersStart = () => {
+  return {
+    type: actionTypes.FETCH_ORDERS_START
+  };
+};
+
+export const fetchOrders = () => {
+  return dispatch => {
+    dispatch(fetchOrdersStart()); // Set loading to true
+
+    axios
+      .get("/orders.json")
+      .then(res => {
+        console.log("[actions/orders.js] fetchOrders() ", res.data); // { idABC:{}, idXYZ:{},..}
+        const fetchedOrders = [];
+        for (let key in res.data) {
+          // fetchedOrders.push(res.data[key]);
+          // Spread the object and create a property 'id' (called any) and assign value of 'key'.  This includes the 'key' value in the object.
+          fetchedOrders.push({ ...res.data[key], id: key });
+        }
+        // console.log(fetchedOrders);
+        dispatch(fetchOrdersSuccess(fetchedOrders));
+      })
+      .catch(err => {
+        dispatch(fetchOrdersFail(err));
+      });
   };
 };
