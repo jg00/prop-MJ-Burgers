@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as actionTypes from "./actionTypes";
+import apiKey from "../../apiKey";
 
 // Set a loading state, show spinner
 export const authStart = () => {
@@ -33,11 +34,9 @@ export const auth = (email, password, isSignup) => {
       returnSecureToken: true
     };
 
-    let url =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCkbCkePHxvVHPr3XpCsUhE0SoR8q-dNSc"; // Sign up
+    let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`; // Sign up
     if (!isSignup) {
-      url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCkbCkePHxvVHPr3XpCsUhE0SoR8q-dNSc"; // Sign in
+      url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`; // Sign in
     }
 
     // Sign up or Sign in and get token (Firebase Auth Rest API)
