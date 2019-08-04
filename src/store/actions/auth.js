@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as actionTypes from "./actionTypes";
 
 // Set a loading state, show spinner
@@ -7,10 +8,11 @@ export const authStart = () => {
   };
 };
 
-export const authSuccess = authData => {
+export const authSuccess = (token, userId) => {
   return {
     type: actionTypes.AUTH_SUCCESS,
-    authData: authData
+    idToken: token,
+    userId: userId
   };
 };
 
@@ -21,9 +23,33 @@ export const authFail = error => {
   };
 };
 
-export const auth = (email, password) => {
+export const auth = (email, password, isSignup) => {
   return dispatch => {
-    // authenticate user
     dispatch(authStart());
+
+    const authData = {
+      email: email,
+      password: password,
+      returnSecureToken: true
+    };
+
+    let url =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCkbCkePHxvVHPr3XpCsUhE0SoR8q-dNSc"; // Sign up
+    if (!isSignup) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCkbCkePHxvVHPr3XpCsUhE0SoR8q-dNSc"; // Sign in
+    }
+
+    // Sign up or Sign in and get token (Firebase Auth Rest API)
+    axios
+      .post(url, authData)
+      .then(response => {
+        console.log(response.data);
+        dispatch(authSuccess(response.data.idToken, response.data.localId)); // Fields - idToken, localId
+      })
+      .catch(err => {
+        console.log(err);
+        dispatch(authFail(err));
+      });
   };
 };
