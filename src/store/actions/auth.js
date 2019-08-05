@@ -24,6 +24,24 @@ export const authFail = error => {
   };
 };
 
+export const logout = () => {
+  return {
+    type: actionTypes.AUTH_LOGOUT
+  };
+};
+
+// Scenario: User logged in but unaware token has expired.
+// 'Actively' keep track of if/when token expires.
+export const checkAuthTimeout = expirationTime => {
+  return dispatch => {
+    // After token expiry time reached dispatch logout 'actively'.
+    setTimeout(() => {
+      // For now this will clear the store but we will implement something when the user logs out including when he/she 'deliberately' logs out to give the user an indication that he/she is not logged in anymore.
+      dispatch(logout());
+    }, expirationTime * 1000); // 1000ms = 1sec
+  };
+};
+
 export const auth = (email, password, isSignup) => {
   return dispatch => {
     dispatch(authStart());
@@ -45,10 +63,11 @@ export const auth = (email, password, isSignup) => {
       .then(response => {
         console.log(response.data);
         dispatch(authSuccess(response.data.idToken, response.data.localId)); // Fields - idToken, localId
+        dispatch(checkAuthTimeout(response.data.expiresIn)); // expiresIn: '3600' (3600 secs from Firebase)
       })
       .catch(err => {
         console.log(err);
-        dispatch(authFail(err));
+        dispatch(authFail(err.response.data.error));
       });
   };
 };
