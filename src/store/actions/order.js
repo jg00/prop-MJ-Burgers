@@ -22,13 +22,14 @@ export const purchaseBurgerStart = () => {
   };
 };
 
-export const purchaseBurger = orderData => {
+// Dispatched from src/containers/Checkout/ContactData/ContactData
+export const purchaseBurger = (orderData, token) => {
   return dispatch => {
     dispatch(purchaseBurgerStart()); // Sets state loading to true
 
     // path requires .json for Firebase only
     axios
-      .post("/orders.json", orderData)
+      .post("/orders.json?auth=" + token, orderData)
       .then(response => {
         console.log(response.data);
         dispatch(purchaseBurgerSuccess(response.data.name, orderData)); // Sets state purhases to true.
@@ -79,12 +80,13 @@ export const fetchOrdersStart = () => {
   };
 };
 
-export const fetchOrders = () => {
+// Dispatched from src/containers/Orders/Orders
+export const fetchOrders = token => {
   return dispatch => {
     dispatch(fetchOrdersStart()); // Set loading to true
 
     axios
-      .get("/orders.json")
+      .get("/orders.json?auth=" + token)
       .then(res => {
         console.log("[actions/orders.js] fetchOrders() ", res.data); // { idABC:{}, idXYZ:{},..}
         const fetchedOrders = [];
