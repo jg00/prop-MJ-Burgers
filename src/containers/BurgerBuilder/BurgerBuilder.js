@@ -35,10 +35,17 @@ class BurgerBuilder extends Component {
     this.props.onInitIngredients();
   }
 
+  // Based on purchasing, true/false will show/hide Modal by controlling the Modals className property (.Modal or .ModalHide)
+  // Now we only want to show the Modal "if" we are authenticated,
+  // Otherwise redirect to authenticate page.
   purchaseHandler = () => {
-    this.setState({
-      purchasing: true
-    });
+    if (this.props.isAuthenticated) {
+      this.setState({
+        purchasing: true
+      });
+    } else {
+      this.props.history.push("/auth");
+    }
   };
 
   purchaseCancelHandler = () => {
@@ -163,11 +170,13 @@ class BurgerBuilder extends Component {
             // purchasable={this.state.purchasable}
             purchasable={this.updatePurchaseState(this.props.ings)}
             ordered={this.purchaseHandler}
+            isAuth={this.props.isAuthenticated}
             price={this.props.price}
           />
         </Aux>
       );
 
+      // Display order summary. Passed to Modal as this.props.children.
       orderSummary = (
         <OrderSummary
           ingredients={this.props.ings}
@@ -202,7 +211,8 @@ const mapStateToProps = state => {
   return {
     ings: state.burgerBuilder.ingredients,
     price: state.burgerBuilder.totalPrice,
-    error: state.burgerBuilder.error
+    error: state.burgerBuilder.error,
+    isAuthenticated: state.auth.token !== null
   };
 };
 
