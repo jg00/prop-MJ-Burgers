@@ -35,15 +35,17 @@ class BurgerBuilder extends Component {
     this.props.onInitIngredients();
   }
 
-  // Based on purchasing, true/false will show/hide Modal by controlling the Modals className property (.Modal or .ModalHide)
-  // Now we only want to show the Modal "if" we are authenticated,
-  // Otherwise redirect to authenticate page.
+  // Based on 'purchasing' state, true will show Modal by controlling the Modals className property (.Modal or .ModalHide)
+  // 'Purchasing' state of false will redirect to authentication page.
+  // Now we only want to show the Modal "if" we are authenticated, otherwise redirect to authenticate page.
   purchaseHandler = () => {
     if (this.props.isAuthenticated) {
       this.setState({
         purchasing: true
       });
     } else {
+      // We are redirecting user to /auth but we also need to indicate the user is redirect to /checkout right after to keep ingredients state.
+      this.props.onSetAuthRedirectPath("/checkout");
       this.props.history.push("/auth");
     }
   };
@@ -54,6 +56,7 @@ class BurgerBuilder extends Component {
     });
   };
 
+  // Used within OrderSummary.js when clicking 'Continue to checkout'
   // Now with Redux just redirect to /checkout but now ingredients is available through Redux store.
   purchaseContinueHandler = () => {
     this.props.onInitPurchase(); // First step at reducers/order.js, sets state property purchases: 'false'.
@@ -221,7 +224,8 @@ const mapDispatchToProps = dispatch => {
     onIngredientAdded: ingName => dispatch(actions.addIngredient(ingName)),
     onIngredientRemoved: ingName => dispatch(actions.removeIngredient(ingName)),
     onInitIngredients: () => dispatch(actions.initIngredients()),
-    onInitPurchase: () => dispatch(actions.purchaseInit())
+    onInitPurchase: () => dispatch(actions.purchaseInit()),
+    onSetAuthRedirectPath: path => dispatch(actions.setAuthRedirectPath(path))
 
     /*
       onIngredientAdded: ingName =>

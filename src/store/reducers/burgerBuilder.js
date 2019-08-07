@@ -5,7 +5,8 @@ const initialState = {
   ingredients: null,
   // ingredients: { salad: 0, bacon: 0, cheese: 0, meat: 0 },
   totalPrice: 4,
-  error: false
+  error: false,
+  building: false
 };
 
 const INGREDIENT_PRICES = {
@@ -27,7 +28,8 @@ const reducer = (state = initialState, action) => {
       );
       const updatedState = {
         ingredients: updatedIngredients,
-        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.ingredientName]
+        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.ingredientName],
+        building: true
       };
 
       return updateObject(state, updatedState);
@@ -56,9 +58,13 @@ const reducer = (state = initialState, action) => {
           ...state.ingredients,
           [action.ingredientName]: state.ingredients[action.ingredientName] - 1
         },
-        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName]
+        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName],
+        building: true
       };
 
+    // SET_INGREDIENTS resents all ingredients (ie starting from scratch).
+    // Note that whenever SET_INGREDIENTS is caught, that means the user visited the BurgerBuilder.js and important, we are starting from scratch.
+    // So we can set the state of "building" to false.
     case actionTypes.SET_INGREDIENTS:
       return updateObject(state, {
         ingredients: {
@@ -68,7 +74,8 @@ const reducer = (state = initialState, action) => {
           meat: action.ingredients.meat
         },
         totalPrice: 4,
-        error: false
+        error: false,
+        building: false
       });
 
     /* Original version

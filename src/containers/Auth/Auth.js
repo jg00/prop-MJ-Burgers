@@ -43,6 +43,14 @@ class Auth extends Component {
     isSignup: true
   };
 
+  componentDidMount() {
+    // If we are not in the middle of building a burger but trying to redirect to /checkout we need to reset the redirect path
+    // In other words we reset the redirect path whenever we reach the Auth page when we are not building a burger.
+    if (!this.props.buildingBurger && this.props.authRedirectPath !== "/") {
+      this.props.onSetAuthRedirectPath(); // Resets redirect path to '/'
+    }
+  }
+
   checkValidity(value, rules) {
     let isValid = true;
 
@@ -144,9 +152,11 @@ class Auth extends Component {
       errorMessage = <p>{this.props.error.message}</p>;
     }
 
+    // If user is redirected to sign in from building a burger, on authentication redirect user straight to /checkout along with current burger ingredients state they were working on.
     let authRedirect = null;
     if (this.props.isAuthenticated) {
-      authRedirect = <Redirect to="/" />;
+      // authRedirect = <Redirect to="/" />;
+      authRedirect = <Redirect to={this.props.authRedirectPath} />;
     }
 
     return (
@@ -169,14 +179,17 @@ const mapStateToProps = state => {
   return {
     loading: state.auth.loading,
     error: state.auth.error,
-    isAuthenticated: state.auth.token !== null
+    isAuthenticated: state.auth.token !== null,
+    buildingBurger: state.burgerBuilder.building,
+    authRedirectPath: state.auth.authRedirectPath
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     onAuth: (email, password, isSignup) =>
-      dispatch(actions.auth(email, password, isSignup))
+      dispatch(actions.auth(email, password, isSignup)),
+    onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath("/"))
   };
 };
 
