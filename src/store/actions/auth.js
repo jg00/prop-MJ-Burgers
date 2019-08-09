@@ -62,6 +62,10 @@ export const auth = (email, password, isSignup) => {
       .post(url, authData)
       .then(response => {
         console.log(response.data);
+
+        // Store token, expiration, userid
+        localStorage.setItem("token", response.data.idToken);
+
         dispatch(authSuccess(response.data.idToken, response.data.localId)); // Fields - idToken, localId
         dispatch(checkAuthTimeout(response.data.expiresIn)); // expiresIn: '3600' (3600 secs from Firebase)
       })
