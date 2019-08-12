@@ -81,12 +81,20 @@ export const fetchOrdersStart = () => {
 };
 
 // Dispatched from src/containers/Orders/Orders
-export const fetchOrders = token => {
+export const fetchOrders = (token, userId) => {
   return dispatch => {
     dispatch(fetchOrdersStart()); // Set loading to true
 
+    // Firebase query parameter keys 'orderby=' and 'equalTo='
+    const queryParams = `?auth=${token}&orderBy="userId"&equalTo="${userId}"`;
+
+    // const queryParams =
+    //   "?auth=" + token + '&orderBy="userId"&equalTo="' + userId + '"';
+    // console.log(queryParams);
+
     axios
-      .get("/orders.json?auth=" + token)
+      .get("/orders.json" + queryParams)
+      // .get("/orders.json?auth=" + token)
       .then(res => {
         console.log("[actions/orders.js] fetchOrders() ", res.data); // { idABC:{}, idXYZ:{},..}
         const fetchedOrders = [];
