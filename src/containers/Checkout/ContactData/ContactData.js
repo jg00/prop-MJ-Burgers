@@ -1,3 +1,8 @@
+/*
+  ContactData_w_comments.js
+  - This is a copy before refactoring using updateObject() from utility
+*/
+
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
@@ -9,6 +14,7 @@ import axios from "../../../axios-orders";
 import Input from "../../../components/UI/Input/Input";
 import withErrorHandler from "../../../hoc/withErrorHandler/withErrorHandler";
 import * as actions from "../../../store/actions/index";
+import { updateObject } from "../../../shared/utility";
 
 class ContactData extends Component {
   state = {
@@ -183,12 +189,46 @@ class ContactData extends Component {
     - Update immutably by making copy of the state (note watch out for deep clones )
   */
   inputChangedHander = (event, inputIdentifier) => {
+    // console.log(event.target.value);
+
+    const updatedFormElement = updateObject(
+      this.state.orderForm[inputIdentifier],
+      {
+        value: event.target.value,
+        valid: this.checkValidity(
+          event.target.value,
+          this.state.orderForm[inputIdentifier].validation
+        ),
+        touched: true
+      }
+    );
+
+    const updatedOrderForm = updateObject(this.state.orderForm, {
+      [inputIdentifier]: updatedFormElement
+    });
+
+    // Check all input is valid to enable button
+    let formIsValid = true;
+    for (let inputIdentifier in updatedOrderForm) {
+      // console.log(inputIdentifiers)
+      formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+    }
+
+    this.setState({ orderForm: updatedOrderForm, formIsValid: formIsValid });
+  };
+
+  // Original version of inputChangedHander() for reference
+  /*
+    // - Do not update original state directly like this.state.orderForm.value
+    // - Update immutably by making copy of the state (note watch out for deep clones )
+  
+  inputChangedHander = (event, inputIdentifier) => {
     console.log(event.target.value);
 
-    /* (Make a clone of {} and update properties within the cloned {})
-       Important - this does not create a deep clone of nested objects but instead get a pointer 
-       to those objects only.  Any changes directly then will still mutate the original state.
-    */
+    // (Make a clone of {} and update properties within the cloned {})
+    //    Important - this does not create a deep clone of nested objects but instead get a pointer 
+    //    to those objects only.  Any changes directly then will still mutate the original state.
+    
     const updatedOrderForm = { ...this.state.orderForm }; // This distributes properties of the order form ie 'name', 'email', etc.  Also see important note above.
 
     const updatedFormElement = { ...updatedOrderForm[inputIdentifier] }; // Clone objects assocaiated to the properties like 'name', email', etc.
@@ -211,6 +251,7 @@ class ContactData extends Component {
 
     this.setState({ orderForm: updatedOrderForm, formIsValid: formIsValid });
   };
+  */
 
   render() {
     const formElementsArray = [];
