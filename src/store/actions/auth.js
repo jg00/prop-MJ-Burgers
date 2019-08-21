@@ -65,7 +65,7 @@ export const auth = (email, password, isSignup) => {
     axios
       .post(url, authData)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
 
         // Return a Date object represending the calculated expiration date.  (expiresIn (seconds)) * 1000  converted to milliseconds b/c JavaScript time works in milliseconds.
         const expirationDate = new Date(
@@ -81,7 +81,7 @@ export const auth = (email, password, isSignup) => {
         dispatch(checkAuthTimeout(response.data.expiresIn)); // expiresIn: '3600' (3600 secs from Firebase)
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         dispatch(authFail(err.response.data.error));
       });
   };
